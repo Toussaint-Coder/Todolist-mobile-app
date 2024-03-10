@@ -1,7 +1,10 @@
+import {useState} from "react"
 import {Text, Image, View, TextInput, FlatList} from "react-native"
+import DateTimePicker from "@react-native-community/datetimepicker"
 //main color : #0C3B2E
 //secondary colo : #BACEBD
 //third : #FFBA00
+
 export default function App() {
   const Todos = [
     {
@@ -29,13 +32,31 @@ export default function App() {
       status: false,
     },
   ]
+  const [task, setTask] = useState(null)
+  const [taskList, setTaskList] = useState([])
+  const date = new Date()
+
+  const handlerAddedTask = (TaskName) => {
+    setTask(TaskName)
+  }
+
+  const handlerAddTask = () => {
+    if (!task) return
+
+    setTaskList((taskList) => [
+      ...taskList,
+      {
+        Name: task,
+        Time: `${date.getHours()}:${date.getMinutes()}`,
+        key: Math.random(),
+        status: false,
+      },
+    ])
+  }
   const renderTodos = ({item}) => {
     return (
       <View
         style={{
-          Height: 136,
-          Width: 164,
-          
           backgroundColor: "#0C3B2E",
           padding: 15,
           borderRadius: 20,
@@ -45,6 +66,9 @@ export default function App() {
           alignitems: "center",
           marginHorizontal: 5,
           marginBottom: 10,
+          borderWidth: 1,
+          height: 136,
+          width: 164,
         }}
       >
         <Image
@@ -62,7 +86,7 @@ export default function App() {
             style={{
               fontWeight: 700,
               color: "white",
-              fontSize: 27,
+              fontSize: 24,
               textAlign: "center",
             }}
           >
@@ -101,6 +125,7 @@ export default function App() {
         <View
           style={{
             flexDirection: "row",
+            justifyContent: "space-between",
           }}
         >
           <Text
@@ -134,11 +159,51 @@ export default function App() {
       </View>
 
       <FlatList
-        data={Todos}
+        data={taskList}
         renderItem={renderTodos}
         numColumns={2}
-        style={{marginTop: 10}}
+        style={{marginTop: 10, paddingHorizontal: 10}}
       />
+
+      <View
+        style={{
+          position: "absolute",
+          bottom: 0,
+          width: "100%",
+          padding: 16,
+          backgroundColor: "#0C3B2E",
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          flexDirection: "row",
+          gap: 10,
+          alignItems: "stretch",
+        }}
+      >
+        <DateTimePicker mode="time" value="" is24Hour={true} />
+        <TextInput
+          style={{
+            height: 42,
+            backgroundColor: "white",
+            borderRadius: 10,
+            paddingLeft: 16,
+            flex: 2,
+          }}
+          onChangeText={handlerAddedTask}
+          placeholder="Search a Task"
+        ></TextInput>
+        <View
+          onTouchStart={handlerAddTask}
+          style={{
+            backgroundColor: "#FFBA00",
+            width: 50,
+            borderRadius: 10,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Text>Add</Text>
+        </View>
+      </View>
     </View>
   )
 }
