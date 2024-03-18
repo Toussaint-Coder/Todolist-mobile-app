@@ -1,44 +1,54 @@
 import {useState} from "react"
-import {Text, Image, View, TextInput, FlatList} from "react-native"
-import DateTimePicker from "@react-native-community/datetimepicker"
+import {
+  Text,
+  Image,
+  View,
+  TextInput,
+  FlatList,
+  TouchableOpacity,
+} from "react-native"
+
 //main color : #0C3B2E
 //secondary colo : #BACEBD
 //third : #FFBA00
 
 export default function App() {
-  const Todos = [
-    {
-      Name: "Workout",
-      Time: "08:00",
-      key: Math.random(),
-      status: true,
-    },
-    {
-      Name: "Shopping",
-      Time: "09:00",
-      key: Math.random(),
-      status: false,
-    },
-    {
-      Name: "Cook Pasta",
-      Time: "10:00",
-      key: Math.random(),
-      status: false,
-    },
-    {
-      Name: "Work Time",
-      Time: "11:00",
-      key: Math.random(),
-      status: false,
-    },
-  ]
+  // const Todos = [
+  //   {
+  //     Name: "Workout",
+  //     Time: "08:00",
+  //     key: Math.random(),
+  //     status: true,
+  //   },
+  //   {
+  //     Name: "Shopping",
+  //     Time: "09:00",
+  //     key: Math.random(),
+  //     status: false,
+  //   },
+  //   {
+  //     Name: "Cook Pasta",
+  //     Time: "10:00",
+  //     key: Math.random(),
+  //     status: false,
+  //   },
+  //   {
+  //     Name: "Work Time",
+  //     Time: "11:00",
+  //     key: Math.random(),
+  //     status: false,
+  //   },
+  // ]
+
   const [task, setTask] = useState(null)
   const [taskList, setTaskList] = useState([])
-  const date = new Date()
 
   const handlerAddedTask = (TaskName) => {
     setTask(TaskName)
   }
+
+  const date = new Date()
+  const [Hours, Munites] = [date.getHours(), date.getMinutes()]
 
   const handlerAddTask = () => {
     if (!task) return
@@ -47,63 +57,86 @@ export default function App() {
       ...taskList,
       {
         Name: task,
-        Time: `${date.getHours()}:${date.getMinutes()}`,
+        Time: `${Hours.toString().length < 2 ? `0${Hours}` : Hours}:${
+          Munites.toString().length < 2 ? `0${Munites}` : Munites
+        }`,
         key: Math.random(),
         status: false,
       },
     ])
   }
+  const PressHandler = (key) => {
+    setTaskList((PrevTasks) => {
+      return PrevTasks.filter((task) => task.key != key)
+    })
+  }
+  const handlerSeach = (q) => {
+    const query = q.toLowerCase()
+    let found = false
+
+    taskList.forEach((Task) => {
+      if (Task.Name.toLowerCase().indexOf(query) > -1) {
+        setTaskList([Task])
+        found = true
+      }
+    })
+
+    if (q.length === 0) setTaskList(taskList)
+    if (!found) console.log("no result!")
+  }
   const renderTodos = ({item}) => {
     return (
-      <View
-        style={{
-          backgroundColor: "#0C3B2E",
-          padding: 15,
-          borderRadius: 20,
-          flex: 1,
-          position: "relative",
-          justifyContent: "center",
-          alignitems: "center",
-          marginHorizontal: 5,
-          marginBottom: 10,
-          borderWidth: 1,
-          height: 136,
-          width: 164,
-        }}
-      >
-        <Image
+      <TouchableOpacity onPress={() => PressHandler(item.key)}>
+        <View
           style={{
-            top: 10,
-            left: 10,
-            width: 24,
-            height: 24,
-            position: "absolute",
+            backgroundColor: "#0C3B2E",
+            padding: 15,
+            borderRadius: 20,
+            flex: 1,
+            position: "relative",
+            justifyContent: "center",
+            alignitems: "center",
+            marginHorizontal: 5,
+            marginBottom: 10,
+            borderWidth: 1,
+            height: 136,
+            width: 150,
           }}
-          source={require("./assets/check.png")}
-        />
-        <View>
-          <Text
+        >
+          <Image
             style={{
-              fontWeight: 700,
-              color: "white",
-              fontSize: 24,
-              textAlign: "center",
+              top: 10,
+              left: 10,
+              width: 24,
+              height: 24,
+              position: "absolute",
             }}
-          >
-            {item.Time}
-          </Text>
-          <Text
-            style={{
-              fontWeight: "normal",
-              color: "white",
-              fontSize: 20,
-              textAlign: "center",
-            }}
-          >
-            {item.Name}
-          </Text>
+            source={require("./assets/check.png")}
+          />
+          <View>
+            <Text
+              style={{
+                fontWeight: 700,
+                color: "white",
+                fontSize: 24,
+                textAlign: "center",
+              }}
+            >
+              {item.Time}
+            </Text>
+            <Text
+              style={{
+                fontWeight: "normal",
+                color: "white",
+                fontSize: 20,
+                textAlign: "center",
+              }}
+            >
+              {item.Name}
+            </Text>
+          </View>
         </View>
-      </View>
+      </TouchableOpacity>
     )
   }
   return (
@@ -155,6 +188,7 @@ export default function App() {
             paddingLeft: 16,
           }}
           placeholder="Search a Task"
+          onChangeText={handlerSeach}
         ></TextInput>
       </View>
 
@@ -179,7 +213,6 @@ export default function App() {
           alignItems: "stretch",
         }}
       >
-        <DateTimePicker mode="time" value="" is24Hour={true} />
         <TextInput
           style={{
             height: 42,
